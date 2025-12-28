@@ -4,99 +4,8 @@
 <meta charset="UTF-8">
 <title>アンケート TF-IDF 解析</title>
 
+<link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dist/kuromoji.js"></script>
-
-<style>
-body {
-  font-family: "Segoe UI", sans-serif;
-  background: #f5f7fa;
-  margin: 0;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-.container {
-  max-width: 1000px;
-  margin: auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-textarea {
-  width: 100%;
-  height: 160px;
-  font-size: 14px;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-button {
-  margin-top: 10px;
-  padding: 10px 24px;
-  font-size: 16px;
-  background: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #357abd;
-}
-
-#status {
-  margin-top: 10px;
-  color: #666;
-}
-
-.section {
-  margin-top: 30px;
-}
-
-.section h2 {
-  border-left: 5px solid #4a90e2;
-  padding-left: 10px;
-}
-
-.rank-list {
-  list-style: none;
-  padding: 0;
-}
-
-.rank-list li {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: 1px solid #eee;
-}
-
-.rank {
-  font-weight: bold;
-  width: 50px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-th, td {
-  padding: 8px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
-
-th {
-  background: #f0f4f8;
-}
-</style>
 </head>
 
 <body>
@@ -111,125 +20,25 @@ th {
 機能は多いが少し使いにくい
 </textarea>
 
-<button onclick="analyze()">解析する</button>
+<button id="analyzeBtn">解析する</button>
 <div id="status">辞書を読み込み中...</div>
 
 <div class="section" id="rankingSection" style="display:none;">
-  <h2>📊 単語ランキング（上位10）</h2>
-  <ul class="rank-list" id="ranking"></ul>
+  <h2>📊 単語ランキング</h2>
+  <ul id="ranking"></ul>
 </div>
 
 <div class="section" id="tableSection" style="display:none;">
-  <h2>📋 TF-IDF 詳細表</h2>
+  <h2>📋 TF-IDF 表</h2>
   <table>
     <thead>
-      <tr>
-        <th>順位</th>
-        <th>単語</th>
-        <th>TF-IDF</th>
-      </tr>
+      <tr><th>順位</th><th>単語</th><th>TF-IDF</th></tr>
     </thead>
     <tbody id="tableBody"></tbody>
   </table>
 </div>
 </div>
 
-<script>
-let tokenizer = null;
-
-const stopWords = new Set([
-  "こと","もの","ため","これ","それ","よう","さん"
-]);
-
-kuromoji.builder({
-  dicPath: "./dict"
-}).build((err, t) => {
-  if (err) {
-    document.getElementById("status").textContent = "辞書の読み込みに失敗";
-    console.error(err);
-    return;
-  }
-  tokenizer = t;
-  document.getElementById("status").textContent = "準備完了";
-});
-
-function tokenize(text) {
-  return tokenizer.tokenize(text)
-    .filter(t =>
-      (t.pos === "名詞" || t.pos === "形容詞") &&
-      t.basic_form !== "*" &&
-      !stopWords.has(t.basic_form) &&
-      t.basic_form.length > 1
-    )
-    .map(t => t.basic_form);
-}
-
-function computeTfIdf(docs) {
-  const tokenized = docs.map(tokenize);
-  const df = {};
-
-  tokenized.forEach(doc => {
-    [...new Set(doc)].forEach(w => {
-      df[w] = (df[w] || 0) + 1;
-    });
-  });
-
-  const N = docs.length;
-  const scores = {};
-
-  tokenized.forEach(doc => {
-    const tf = {};
-    doc.forEach(w => tf[w] = (tf[w] || 0) + 1);
-
-    Object.entries(tf).forEach(([w, c]) => {
-      const tfVal = c / doc.length;
-      const idfVal = Math.log(N / df[w]);
-      scores[w] = (scores[w] || 0) + tfVal * idfVal;
-    });
-  });
-
-  return Object.entries(scores)
-    .sort((a, b) => b[1] - a[1])
-    .map(([word, score]) => ({ word, score }));
-}
-
-function analyze() {
-  if (!tokenizer) return;
-
-  const docs = document.getElementById("input").value
-    .split("\n")
-    .map(l => l.trim())
-    .filter(Boolean);
-
-  const result = computeTfIdf(docs);
-
-  const ranking = document.getElementById("ranking");
-  ranking.innerHTML = "";
-  result.slice(0, 10).forEach((r, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <span class="rank">${i + 1}位</span>
-      <span>${r.word}</span>
-      <span>${r.score.toFixed(3)}</span>
-    `;
-    ranking.appendChild(li);
-  });
-
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
-  result.forEach((r, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${r.word}</td>
-      <td>${r.score.toFixed(4)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  document.getElementById("rankingSection").style.display = "block";
-  document.getElementById("tableSection").style.display = "block";
-}
-</script>
+<script src="main.js"></script>
 </body>
 </html>
