@@ -2,9 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>アンケート TF-IDF 解析</title>
-
-<script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dist/kuromoji.js"></script>
+<title>アンケート TF-IDF 解析（辞書不要）</title>
 
 <style>
 body {
@@ -14,9 +12,7 @@ body {
   padding: 20px;
 }
 
-h1 {
-  text-align: center;
-}
+h1 { text-align: center; }
 
 .container {
   max-width: 1000px;
@@ -32,7 +28,6 @@ textarea {
   height: 160px;
   font-size: 14px;
   padding: 10px;
-  box-sizing: border-box;
 }
 
 button {
@@ -43,27 +38,9 @@ button {
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
 }
 
-button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-}
-
-#status {
-  margin-top: 10px;
-  color: #666;
-}
-
-.section {
-  margin-top: 30px;
-}
-
-.section h2 {
-  border-left: 5px solid #4a90e2;
-  padding-left: 10px;
-}
+.section { margin-top: 30px; }
 
 .rank-list {
   list-style: none;
@@ -73,39 +50,33 @@ button:disabled {
 .rank-list li {
   display: flex;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px;
   border-bottom: 1px solid #eee;
 }
 
-.rank {
-  font-weight: bold;
-  width: 50px;
-}
+.rank { font-weight: bold; width: 50px; }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
 th, td {
-  padding: 8px;
   border: 1px solid #ddd;
+  padding: 8px;
   text-align: center;
 }
 
-th {
-  background: #f0f4f8;
-}
+th { background: #f0f4f8; }
 </style>
 </head>
 <body>
 
-<h1>アンケート TF-IDF 解析</h1>
+<h1>アンケート TF-IDF 解析（辞書不要）</h1>
 
 <div class="container">
 
-<p>※ 1行＝1人分の自由記述回答</p>
+<p>※ 1行＝1人分の回答</p>
 
 <textarea id="input">
 このサービスは使いやすい
@@ -113,21 +84,20 @@ th {
 機能は多いが少し使いにくい
 </textarea>
 
-<button id="analyzeBtn" onclick="analyze()" disabled>解析する</button>
-<div id="status">辞書を読み込み中...</div>
+<button onclick="analyze()">解析する</button>
 
 <div class="section" id="rankingSection" style="display:none;">
-  <h2>📊 単語ランキング（上位10）</h2>
+  <h2>📊 N-gram ランキング</h2>
   <ul class="rank-list" id="ranking"></ul>
 </div>
 
 <div class="section" id="tableSection" style="display:none;">
-  <h2>📋 TF-IDF 詳細表</h2>
+  <h2>📋 TF-IDF 詳細</h2>
   <table>
     <thead>
       <tr>
         <th>順位</th>
-        <th>単語</th>
+        <th>N-gram</th>
         <th>TF-IDF</th>
       </tr>
     </thead>
@@ -138,38 +108,18 @@ th {
 </div>
 
 <script>
-let tokenizer = null;
-
-const stopWords = new Set([
-  "こと", "もの", "ため", "これ", "それ"
-]);
-
-// ★ Pages 直下の dict/ を読む
-kuromoji.builder({ dicPath: "dict" }).build((err, t) => {
-  if (err) {
-    document.getElementById("status").textContent =
-      "❌ 辞書の読み込みに失敗しました（Network を確認してください）";
-    console.error(err);
-    return;
+// ★ ここが肝：2文字N-gram
+function ngrams(text, n = 2) {
+  const cleaned = text.replace(/[^\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}a-zA-Z0-9]/gu, "");
+  const grams = [];
+  for (let i = 0; i <= cleaned.length - n; i++) {
+    grams.push(cleaned.slice(i, i + n));
   }
-  tokenizer = t;
-  document.getElementById("status").textContent = "✅ 準備完了";
-  document.getElementById("analyzeBtn").disabled = false;
-});
-
-function tokenize(text) {
-  return tokenizer.tokenize(text)
-    .filter(t =>
-      (t.pos === "名詞" || t.pos === "形容詞") &&
-      t.basic_form !== "*" &&
-      !stopWords.has(t.basic_form) &&
-      t.basic_form.length > 1
-    )
-    .map(t => t.basic_form);
+  return grams;
 }
 
 function computeTfIdf(docs) {
-  const tokenized = docs.map(tokenize);
+  const tokenized = docs.map(d => ngrams(d, 2));
   const df = {};
   tokenized.forEach(doc => {
     new Set(doc).forEach(w => df[w] = (df[w] || 0) + 1);
@@ -181,7 +131,6 @@ function computeTfIdf(docs) {
   tokenized.forEach(doc => {
     const tf = {};
     doc.forEach(w => tf[w] = (tf[w] || 0) + 1);
-
     Object.entries(tf).forEach(([w, c]) => {
       const tfVal = c / doc.length;
       const idfVal = Math.log(N / df[w]);
@@ -195,8 +144,6 @@ function computeTfIdf(docs) {
 }
 
 function analyze() {
-  if (!tokenizer) return;
-
   const docs = document.getElementById("input").value
     .split("\n")
     .map(l => l.trim())
