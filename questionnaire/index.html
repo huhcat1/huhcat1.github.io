@@ -6,7 +6,7 @@
 
 <link rel="stylesheet" href="style.css">
 
-<!-- ★ kuromoji を先に読み込む -->
+<!-- kuromoji は head でOK -->
 <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dist/kuromoji.js"></script>
 </head>
 
@@ -22,7 +22,7 @@
 機能は多いが少し使いにくい
   </textarea>
 
-  <button id="analyzeBtn">解析する</button>
+  <button id="analyzeBtn" disabled>解析する</button>
   <div id="status">辞書を読み込み中...</div>
 
   <div class="section" id="rankingSection" style="display:none;">
@@ -41,7 +41,7 @@
   </div>
 </div>
 
-<!-- ★ main.js は必ず最後 -->
+<!-- main.js は body の最後 -->
 <script src="main.js"></script>
 </body>
 </html>
