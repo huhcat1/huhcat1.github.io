@@ -1,93 +1,72 @@
-// ★ window から明示的に取得（これが決定打）
-const kuromoji = window.kuromoji;
-
-if (!kuromoji) {
-  alert("kuromoji が読み込まれていません（CDN失敗）");
-  throw new Error("kuromoji not found");
-}
+const status = document.getElementById("status");
+const btn = document.getElementById("analyzeBtn");
 
 let tokenizer = null;
-const stopWords = new Set(["こと","もの","ため","これ","それ"]);
 
-document.addEventListener("DOMContentLoaded", () => {
+status.textContent = "辞書を読み込み中...";
 
-  kuromoji.builder({
-    dicPath: "./dict/"   // ← 必ず末尾 /
-  }).build((err, t) => {
-    if (err) {
-      console.error(err);
-      document.getElementById("status").textContent = "辞書読み込み失敗";
-      return;
-    }
-    tokenizer = t;
-    document.getElementById("status").textContent = "準備完了";
-    document.getElementById("analyzeBtn").disabled = false;
-  });
-
-  document.getElementById("analyzeBtn").onclick = analyze;
+kuromoji.builder({ dicPath: "./dict/" }).build((err, tk) => {
+  if (err) {
+    status.textContent = "辞書読み込み失敗";
+    console.error(err);
+    return;
+  }
+  tokenizer = tk;
+  status.textContent = "辞書読み込み完了";
 });
 
-function tokenize(text) {
-  return tokenizer.tokenize(text)
-    .filter(t =>
-      (t.pos === "名詞" || t.pos === "形容詞") &&
-      t.basic_form !== "*" &&
-      !stopWords.has(t.basic_form)
-    )
-    .map(t => t.basic_form);
-}
+btn.onclick = () => {
+  if (!tokenizer) {
+    alert("辞書読み込み中です。少し待ってください。");
+    return;
+  }
 
-function computeTfIdf(docs) {
-  const tokenized = docs.map(tokenize);
+  const lines = document.getElementById("input").value
+    .split("\n")
+    .map(l => l.trim())
+    .filter(l => l);
+
+  const docs = lines.map(line =>
+    tokenizer.tokenize(line)
+      .filter(t => t.pos === "名詞")
+      .map(t => t.surface_form)
+  );
+
+  const tfidf = {};
   const df = {};
-  tokenized.forEach(d => [...new Set(d)].forEach(w => df[w]=(df[w]||0)+1));
-
   const N = docs.length;
-  const scores = {};
 
-  tokenized.forEach(d => {
-    const tf = {};
-    d.forEach(w => tf[w]=(tf[w]||0)+1);
-    Object.entries(tf).forEach(([w,c]) => {
-      scores[w]=(scores[w]||0)+(c/d.length)*Math.log(N/df[w]);
-    });
+  docs.forEach(doc => {
+    const uniq = new Set(doc);
+    uniq.forEach(w => df[w] = (df[w] || 0) + 1);
   });
 
-  return Object.entries(scores)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([word,score])=>({word,score}));
-}
+  docs.forEach(doc => {
+    const tf = {};
+    doc.forEach(w => tf[w] = (tf[w] || 0) + 1);
 
-function analyze() {
-  if (!tokenizer) return;
+    for (const w in tf) {
+      const score = (tf[w] / doc.length) * Math.log(N / df[w]);
+      tfidf[w] = (tfidf[w] || 0) + score;
+    }
+  });
 
-  const docs = document.getElementById("input").value
-    .split("\n").map(s=>s.trim()).filter(Boolean);
-
-  const result = computeTfIdf(docs);
+  const sorted = Object.entries(tfidf)
+    .sort((a, b) => b[1] - a[1]);
 
   const ranking = document.getElementById("ranking");
-  ranking.innerHTML="";
-  result.slice(0,10).forEach((r,i)=>{
-    ranking.innerHTML+=`
-      <li>
-        <span>${i+1}位</span>
-        <span>${r.word}</span>
-        <span>${r.score.toFixed(3)}</span>
-      </li>`;
-  });
+  const table = document.getElementById("tableBody");
 
-  const tbody=document.getElementById("tableBody");
-  tbody.innerHTML="";
-  result.forEach((r,i)=>{
-    tbody.innerHTML+=`
+  ranking.innerHTML = "";
+  table.innerHTML = "";
+
+  sorted.forEach(([w, s], i) => {
+    ranking.innerHTML += `<li>${w} (${s.toFixed(4)})</li>`;
+    table.innerHTML += `
       <tr>
-        <td>${i+1}</td>
-        <td>${r.word}</td>
-        <td>${r.score.toFixed(4)}</td>
+        <td>${i + 1}</td>
+        <td>${w}</td>
+        <td>${s.toFixed(4)}</td>
       </tr>`;
   });
-
-  document.getElementById("rankingSection").style.display="block";
-  document.getElementById("tableSection").style.display="block";
-}
+};
