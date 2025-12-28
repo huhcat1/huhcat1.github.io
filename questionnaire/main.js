@@ -4,12 +4,6 @@ const stopWords = new Set([
   "こと", "もの", "それ", "これ", "ため", "よう", "感じ"
 ]);
 
-// ★ 内部例文（空入力時のみ使用）
-const DEFAULT_EXAMPLE_TEXT = `TF-IDFは「Term Frequency-Inverse Document Frequency」の略です．
-文書集合の中で特定の単語がどれだけ重要かを数値化する手法です．
-1970年代から使われている古典的な手法でありながら，
-現在でも多くの場面で活用されています．`;
-
 document.getElementById("analyzeBtn").addEventListener("click", analyze);
 
 function tokenize(text) {
@@ -52,10 +46,7 @@ function computeTfIdf(docs) {
 }
 
 function analyze() {
-  const rawInput = document.getElementById("input").value.trim();
-
-  // ★ ここだけが変更点
-  const docs = (rawInput === "" ? DEFAULT_EXAMPLE_TEXT : rawInput)
+  const docs = document.getElementById("input").value
     .split("\n")
     .map(v => v.trim())
     .filter(Boolean);
@@ -72,15 +63,13 @@ function analyze() {
 
   result.slice(0, 10).forEach((r, i) => {
     const li = document.createElement("li");
-    li.innerHTML =
-      `<span>${i + 1}位</span><span>${r.word}</span><span>${r.score.toFixed(3)}</span>`;
+    li.innerHTML = `<span>${i + 1}位</span><span>${r.word}</span><span>${r.score.toFixed(3)}</span>`;
     ranking.appendChild(li);
   });
 
   result.forEach((r, i) => {
     const tr = document.createElement("tr");
-    tr.innerHTML =
-      `<td>${i + 1}</td><td>${r.word}</td><td>${r.score.toFixed(4)}</td>`;
+    tr.innerHTML = `<td>${i + 1}</td><td>${r.word}</td><td>${r.score.toFixed(4)}</td>`;
     tbody.appendChild(tr);
   });
 
