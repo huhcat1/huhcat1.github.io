@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>アンケート TF-IDF 解析</title>
-<link rel="stylesheet" href="style.css">
-
-<!-- kuromoji -->
-<script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dist/kuromoji.js"></script>
+  <meta charset="UTF-8">
+  <title>アンケート TF-IDF 解析</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+
 <h1>アンケート TF-IDF 解析</h1>
 
 <div class="container">
@@ -22,18 +19,26 @@
   </textarea>
 
   <button id="analyzeBtn">解析する</button>
-  <div id="status">待機中</div>
+  <div id="status">準備完了</div>
 
-  <h2>📊 単語ランキング</h2>
-  <ul id="ranking"></ul>
+  <div class="section" id="rankingSection" style="display:none;">
+    <h2>📊 単語ランキング（上位10）</h2>
+    <ul id="ranking"></ul>
+  </div>
 
-  <h2>📋 TF-IDF 表</h2>
-  <table>
-    <thead>
-      <tr><th>順位</th><th>単語</th><th>TF-IDF</th></tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+  <div class="section" id="tableSection" style="display:none;">
+    <h2>📋 TF-IDF 表</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>順位</th>
+          <th>単語</th>
+          <th>TF-IDF</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
 </div>
 
 <script src="main.js"></script>
