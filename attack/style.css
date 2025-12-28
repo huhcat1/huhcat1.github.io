@@ -1,3 +1,7 @@
+body {
+  background: red !important;
+}
+
 /* ===== 全体設定 ===== */
 body {
   margin: 0;
