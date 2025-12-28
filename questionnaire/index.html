@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>アンケート TF-IDF 解析</title>
-
 <link rel="stylesheet" href="style.css">
 
-<!-- kuromoji は head でOK -->
+<!-- kuromoji -->
 <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dist/kuromoji.js"></script>
 </head>
 
@@ -22,26 +21,21 @@
 機能は多いが少し使いにくい
   </textarea>
 
-  <button id="analyzeBtn" disabled>解析する</button>
-  <div id="status">辞書を読み込み中...</div>
+  <button id="analyzeBtn">解析する</button>
+  <div id="status">待機中</div>
 
-  <div class="section" id="rankingSection" style="display:none;">
-    <h2>📊 単語ランキング</h2>
-    <ul id="ranking"></ul>
-  </div>
+  <h2>📊 単語ランキング</h2>
+  <ul id="ranking"></ul>
 
-  <div class="section" id="tableSection" style="display:none;">
-    <h2>📋 TF-IDF 表</h2>
-    <table>
-      <thead>
-        <tr><th>順位</th><th>単語</th><th>TF-IDF</th></tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
+  <h2>📋 TF-IDF 表</h2>
+  <table>
+    <thead>
+      <tr><th>順位</th><th>単語</th><th>TF-IDF</th></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 </div>
 
-<!-- main.js は body の最後 -->
 <script src="main.js"></script>
 </body>
 </html>
