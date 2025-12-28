@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Stored XSS</title>
+</head>
+<body>
+  <h1>Stored XSS Demo (localStorage)</h1>
+
+  <input id="comment" placeholder="コメント">
+  <button onclick="save()">保存</button>
+
+  <h2>保存されたコメント</h2>
+  <div id="output"></div>
+
+  <script>
+    function save() {
+      const c = document.getElementById("comment").value;
+      localStorage.setItem("comment", c);
+      render();
+    }
+
+    function render() {
+      const saved = localStorage.getItem("comment");
+      if (saved) {
+        // ❌ 脆弱
+        document.getElementById("output").innerHTML = saved;
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
