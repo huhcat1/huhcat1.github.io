@@ -1,17 +1,30 @@
-let tokenizer = null;
+// ★ window から明示的に取得（これが決定打）
+const kuromoji = window.kuromoji;
 
+if (!kuromoji) {
+  alert("kuromoji が読み込まれていません（CDN失敗）");
+  throw new Error("kuromoji not found");
+}
+
+let tokenizer = null;
 const stopWords = new Set(["こと","もの","ため","これ","それ"]);
 
-kuromoji.builder({
-  dicPath: "./dict/"   // ← ★ 最重要（スラッシュ）
-}).build((err, t) => {
-  if (err) {
-    document.getElementById("status").textContent = "辞書読み込み失敗";
-    console.error(err);
-    return;
-  }
-  tokenizer = t;
-  document.getElementById("status").textContent = "準備完了";
+document.addEventListener("DOMContentLoaded", () => {
+
+  kuromoji.builder({
+    dicPath: "./dict/"   // ← 必ず末尾 /
+  }).build((err, t) => {
+    if (err) {
+      console.error(err);
+      document.getElementById("status").textContent = "辞書読み込み失敗";
+      return;
+    }
+    tokenizer = t;
+    document.getElementById("status").textContent = "準備完了";
+    document.getElementById("analyzeBtn").disabled = false;
+  });
+
+  document.getElementById("analyzeBtn").onclick = analyze;
 });
 
 function tokenize(text) {
@@ -45,7 +58,7 @@ function computeTfIdf(docs) {
     .map(([word,score])=>({word,score}));
 }
 
-document.getElementById("analyzeBtn").onclick = () => {
+function analyze() {
   if (!tokenizer) return;
 
   const docs = document.getElementById("input").value
@@ -56,15 +69,25 @@ document.getElementById("analyzeBtn").onclick = () => {
   const ranking = document.getElementById("ranking");
   ranking.innerHTML="";
   result.slice(0,10).forEach((r,i)=>{
-    ranking.innerHTML+=`<li><span>${i+1}位</span><span>${r.word}</span><span>${r.score.toFixed(3)}</span></li>`;
+    ranking.innerHTML+=`
+      <li>
+        <span>${i+1}位</span>
+        <span>${r.word}</span>
+        <span>${r.score.toFixed(3)}</span>
+      </li>`;
   });
 
   const tbody=document.getElementById("tableBody");
   tbody.innerHTML="";
   result.forEach((r,i)=>{
-    tbody.innerHTML+=`<tr><td>${i+1}</td><td>${r.word}</td><td>${r.score.toFixed(4)}</td></tr>`;
+    tbody.innerHTML+=`
+      <tr>
+        <td>${i+1}</td>
+        <td>${r.word}</td>
+        <td>${r.score.toFixed(4)}</td>
+      </tr>`;
   });
 
   document.getElementById("rankingSection").style.display="block";
   document.getElementById("tableSection").style.display="block";
-};
+}
