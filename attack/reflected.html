@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Reflected XSS</title>
+</head>
+<body>
+  <h1>Reflected XSS Demo</h1>
+
+  <form method="GET">
+    <input type="text" name="q" placeholder="検索語">
+    <button type="submit">送信</button>
+  </form>
+
+  <hr>
+
+  <div>
+    結果:
+    <span id="result"></span>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q");
+    if (q) {
+      // ❌ 脆弱
+      document.getElementById("result").innerHTML = q;
+    }
+  </script>
+</body>
+</html>
