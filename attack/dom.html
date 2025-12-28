@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>DOM-based XSS</title>
+</head>
+<body>
+  <h1>DOM-based XSS Demo</h1>
+
+  <p id="msg"></p>
+
+  <script>
+    const hash = location.hash.substring(1);
+    if (hash) {
+      // ❌ DOM操作起因
+      document.getElementById("msg").innerHTML = hash;
+    }
+  </script>
+</body>
+</html>
