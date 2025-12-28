@@ -1,1 +1,196 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>アンケート TF-IDF 解析</title>
+
+  <!-- kuromoji -->
+  <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dist/kuromoji.js"></script>
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    textarea {
+      width: 100%;
+      height: 160px;
+      font-size: 14px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #357abd;
+    }
+
+    #status {
+      margin-top: 10px;
+      color: #666;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .word {
+      font-weight: bold;
+    }
+
+    .score {
+      color: #4a90e2;
+    }
+  </style>
+</head>
+<body>
+
+<h1>アンケート TF-IDF 解析</h1>
+
+<div class="container">
+  <p>※ 1行＝1人分の自由記述回答</p>
+
+  <textarea id="input">
+このサービスは使いやすい
+サポートが丁寧で安心できる
+機能は多いが少し使いにくい
+  </textarea>
+
+  <button onclick="analyze()">解析する</button>
+
+  <div id="status">辞書を読み込み中...</div>
+
+  <ul id="result"></ul>
+</div>
+
+<script>
+  let tokenizer = null;
+
+  /* ストップワード（最低限） */
+  const stopWords = new Set([
+    "こと", "もの", "ため", "これ", "それ"
+  ]);
+
+  /* kuromoji 初期化 */
+  kuromoji.builder({ dicPath: "dict/" }).build((err, t) => {
+    if (err) {
+      document.getElementById("status").textContent = "辞書の読み込みに失敗しました";
+      console.error(err);
+      return;
+    }
+    tokenizer = t;
+    document.getElementById("status").textContent = "準備完了";
+  });
+
+  /* 形態素解析 */
+  function tokenize(text) {
+    return tokenizer.tokenize(text)
+      .filter(t =>
+        (t.pos === "名詞" || t.pos === "形容詞") &&
+        t.basic_form !== "*" &&
+        !stopWords.has(t.basic_form) &&
+        t.basic_form.length > 1
+      )
+      .map(t => t.basic_form);
+  }
+
+  /* TF-IDF 計算 */
+  function computeTfIdf(docs) {
+    const tokenized = docs.map(tokenize);
+
+    const df = {};
+    tokenized.forEach(doc => {
+      [...new Set(doc)].forEach(w => {
+        df[w] = (df[w] || 0) + 1;
+      });
+    });
+
+    const N = docs.length;
+    const scores = {};
+
+    tokenized.forEach(doc => {
+      const tf = {};
+      doc.forEach(w => tf[w] = (tf[w] || 0) + 1);
+
+      Object.entries(tf).forEach(([w, c]) => {
+        const tfVal = c / doc.length;
+        const idfVal = Math.log(N / df[w]);
+        scores[w] = (scores[w] || 0) + tfVal * idfVal;
+      });
+    });
+
+    return Object.entries(scores)
+      .sort((a, b) => b[1] - a[1])
+      .map(([word, score]) => ({ word, score }));
+  }
+
+  /* 実行 */
+  function analyze() {
+    if (!tokenizer) return;
+
+    const docs = document.getElementById("input").value
+      .split("\n")
+      .map(l => l.trim())
+      .filter(l => l.length > 0);
+
+    const result = computeTfIdf(docs);
+
+    const ul = document.getElementById("result");
+    ul.innerHTML = "";
+
+    result.slice(0, 30).forEach(r => {
+      const li = document.createElement("li");
+
+      const word = document.createElement("span");
+      word.className = "word";
+      word.textContent = r.word;
+
+      const score = document.createElement("span");
+      score.className = "score";
+      score.textContent = r.score.toFixed(3);
+
+      li.appendChild(word);
+      li.appendChild(score);
+      ul.appendChild(li);
+    });
+  }
+</script>
+
+</body>
+</html>
