@@ -13,11 +13,11 @@
 <h2> ---使い方--- </h2>  
 
 <p>
-このツールは,アンケートの自由記述回答をもとに,どの単語が特徴的かを TF-IDF を用いて分析します
+このツールでは，アンケートの自由記述回答などの文章をもとに,どの単語が特徴的かを TF-IDF を用いて分析します
 </p>
 <p>
 1行を1人分の回答としてテキストボックスに入力してください.
-「解析する」ボタンを押すと,重要度の高い単語が
+「解析する」ボタンを押すと，重要度の高い単語が
 ランキングと表形式で表示されます.
 </p>
 
@@ -30,6 +30,17 @@ TF-IDFは「Term Frequency-Inverse Document Frequency」の略で，文書集合
 現在でも多くの場面で活用されています．    
   </textarea>
 
+
+<div class="example-box">
+  <button id="exampleBtn">例文(銀河鉄道の夜)</button>
+</div>
+
+<div class="example-box">
+  <button id="exampleBtn">例文(アンケートテンプレ)</button>
+</div>
+
+
+  
   <button id="analyzeBtn">解析する</button>
   <div id="status">準備完了</div>
 
