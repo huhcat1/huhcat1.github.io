@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Learning Management System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* ===== リセット ===== */
+    * {
+      box-sizing: border-box;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #004098, #0066cc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* ===== ログインボックス ===== */
+    .login-container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 420px;
+      padding: 32px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .login-title {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .login-title h1 {
+      font-size: 22px;
+      margin: 0;
+      color: #003366;
+    }
+
+    .login-title p {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* ===== フォーム ===== */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #0066cc;
+    }
+
+    /* ===== ボタン ===== */
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .login-button:hover {
+      background: #004fa3;
+    }
+
+    /* ===== フッター ===== */
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 0 16px;
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-title">
+      <h1>Learning Management System</h1>
+      <p>ユーザーIDとパスワードを入力してください</p>
+    </div>
+
+    <form>
+      <div class="form-group">
+        <label for="userid">ユーザーID</label>
+        <input type="text" id="userid" placeholder="User ID">
+      </div>
+
+      <div class="form-group">
+        <label for="password">パスワード</label>
+        <input type="password" id="password" placeholder="Password">
+      </div>
+
+      <button type="submit" class="login-button">
+        ログイン
+      </button>
+    </form>
+
+    <div class="footer">
+      © 2025 Learning System
+    </div>
+  </div>
+
+</body>
+</html>
