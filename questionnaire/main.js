@@ -4,30 +4,9 @@ const stopWords = new Set([
   "こと", "もの", "それ", "これ", "ため", "よう", "感じ"
 ]);
 
-document.getElementById("analyzeBtn").addEventListener("click", analyze);
-
-function tokenize(text) {
-  return Array.from(segmenter.segment(text))
-    .map(s => s.segment.trim())
-    .filter(w =>
-      w.length > 1 &&
-      !stopWords.has(w) &&
-      !/^[\p{P}\p{S}]+$/u.test(w)
-    );
-}
-
-function computeTfIdf(docs) {
-  const tokens = docs.map(tokenize);
-  const df = {};
-  const N = docs.length;
-
-  tokens.forEach(doc => {
-    new Set(doc).forEach(w => {
-      df[w] = (df[w] || 0) + 1;
-    });
-  });
-
-  // ===== 例文データ =====
+// =====================
+// 例文データ
+// =====================
 const gingaText = `こんな夢を見た。
 　腕組をして枕元に坐すわっていると、仰向あおむきに寝た女が、静かな声でもう死にますと云う。女は長い髪を枕に敷いて、輪郭りんかくの柔やわらかな瓜実うりざね顔がおをその中に横たえている。真白な頬の底に温かい血の色がほどよく差して、唇くちびるの色は無論赤い。とうてい死にそうには見えない。しかし女は静かな声で、もう死にますと判然はっきり云った。自分も確たしかにこれは死ぬなと思った。そこで、そうかね、もう死ぬのかね、と上から覗のぞき込むようにして聞いて見た。死にますとも、と云いながら、女はぱっちりと眼を開あけた。大きな潤うるおいのある眼で、長い睫まつげに包まれた中は、ただ一面に真黒であった。その真黒な眸ひとみの奥に、自分の姿が鮮あざやかに浮かんでいる。
 　自分は透すき徹とおるほど深く見えるこの黒眼の色沢つやを眺めて、これでも死ぬのかと思った。それで、ねんごろに枕の傍そばへ口を付けて、死ぬんじゃなかろうね、大丈夫だろうね、とまた聞き返した。すると女は黒い眼を眠そうに※(「目＋爭」、第3水準1-88-85)みはったまま、やっぱり静かな声で、でも、死ぬんですもの、仕方がないわと云った。
@@ -52,14 +31,52 @@ const surveyText = `このサービスは使いやすい
 サポートが丁寧で安心できる
 機能は多いが少し使いにくい`;
 
-// ===== ボタン処理 =====
-document.getElementById("exampleGingaBtn").addEventListener("click", () => {
-  setExampleText(gingaText);
-});
+// =====================
+// 例文挿入処理
+// =====================
+function setExampleText(text) {
+  const textarea = document.getElementById("input");
 
-document.getElementById("exampleSurveyBtn").addEventListener("click", () => {
-  setExampleText(surveyText);
-});
+  if (textarea.value.trim() !== "") {
+    if (!confirm("現在の入力内容を例文で上書きしますか？")) return;
+  }
+
+  textarea.value = text;
+}
+
+// ボタンイベント
+document.getElementById("exampleGingaBtn")
+  .addEventListener("click", () => setExampleText(gingaText));
+
+document.getElementById("exampleSurveyBtn")
+  .addEventListener("click", () => setExampleText(surveyText));
+
+// =====================
+// 解析ボタン
+// =====================
+document.getElementById("analyzeBtn").addEventListener("click", analyze);
+
+// =====================
+// TF-IDF 処理
+// =====================
+function tokenize(text) {
+  return Array.from(segmenter.segment(text))
+    .map(s => s.segment.trim())
+    .filter(w =>
+      w.length > 1 &&
+      !stopWords.has(w) &&
+      !/^[\p{P}\p{S}]+$/u.test(w)
+    );
+}
+
+function computeTfIdf(docs) {
+  const tokens = docs.map(tokenize);
+  const df = {};
+  const N = docs.length;
+
+  tokens.forEach(doc => {
+    new Set(doc).forEach(w => df[w] = (df[w] || 0) + 1);
+  });
 
   const scores = {};
 
@@ -79,6 +96,7 @@ document.getElementById("exampleSurveyBtn").addEventListener("click", () => {
     .map(([word, score]) => ({ word, score }));
 }
 
+
 function analyze() {
   const docs = document.getElementById("input").value
     .split("\n")
@@ -96,15 +114,16 @@ function analyze() {
   tbody.innerHTML = "";
 
   result.slice(0, 10).forEach((r, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${i + 1}位</span><span>${r.word}</span><span>${r.score.toFixed(3)}</span>`;
-    ranking.appendChild(li);
+    ranking.innerHTML += `<li>${i + 1}位：${r.word} (${r.score.toFixed(3)})</li>`;
   });
 
   result.forEach((r, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${i + 1}</td><td>${r.word}</td><td>${r.score.toFixed(4)}</td>`;
-    tbody.appendChild(tr);
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${r.word}</td>
+        <td>${r.score.toFixed(4)}</td>
+      </tr>`;
   });
 
   document.getElementById("rankingSection").style.display = "block";
