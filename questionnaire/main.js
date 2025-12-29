@@ -7,7 +7,7 @@ const stopWords = new Set([
 // =====================
 // 例文データ
 // =====================
-const gingaText = `こんな夢を見た。
+const yumeText = `こんな夢を見た。
 　腕組をして枕元に坐すわっていると、仰向あおむきに寝た女が、静かな声でもう死にますと云う。女は長い髪を枕に敷いて、輪郭りんかくの柔やわらかな瓜実うりざね顔がおをその中に横たえている。真白な頬の底に温かい血の色がほどよく差して、唇くちびるの色は無論赤い。とうてい死にそうには見えない。しかし女は静かな声で、もう死にますと判然はっきり云った。自分も確たしかにこれは死ぬなと思った。そこで、そうかね、もう死ぬのかね、と上から覗のぞき込むようにして聞いて見た。死にますとも、と云いながら、女はぱっちりと眼を開あけた。大きな潤うるおいのある眼で、長い睫まつげに包まれた中は、ただ一面に真黒であった。その真黒な眸ひとみの奥に、自分の姿が鮮あざやかに浮かんでいる。
 　自分は透すき徹とおるほど深く見えるこの黒眼の色沢つやを眺めて、これでも死ぬのかと思った。それで、ねんごろに枕の傍そばへ口を付けて、死ぬんじゃなかろうね、大丈夫だろうね、とまた聞き返した。すると女は黒い眼を眠そうに※(「目＋爭」、第3水準1-88-85)みはったまま、やっぱり静かな声で、でも、死ぬんですもの、仕方がないわと云った。
 　じゃ、私わたしの顔が見えるかいと一心いっしんに聞くと、見えるかいって、そら、そこに、写ってるじゃありませんかと、にこりと笑って見せた。自分は黙って、顔を枕から離した。腕組をしながら、どうしても死ぬのかなと思った。
@@ -32,7 +32,7 @@ const surveyText = `このサービスは使いやすい
 機能は多いが少し使いにくい`;
 
 // =====================
-// 例文挿入処理
+// 例文挿入
 // =====================
 function setExampleText(text) {
   const textarea = document.getElementById("input");
@@ -45,19 +45,17 @@ function setExampleText(text) {
 }
 
 // ボタンイベント
-document.getElementById("exampleGingaBtn")
-  .addEventListener("click", () => setExampleText(gingaText));
+document.getElementById("exampleYumeBtn")
+  .addEventListener("click", () => setExampleText(yumeText));
 
 document.getElementById("exampleSurveyBtn")
   .addEventListener("click", () => setExampleText(surveyText));
 
-// =====================
-// 解析ボタン
-// =====================
-document.getElementById("analyzeBtn").addEventListener("click", analyze);
+document.getElementById("analyzeBtn")
+  .addEventListener("click", analyze);
 
 // =====================
-// TF-IDF 処理
+// TF-IDF
 // =====================
 function tokenize(text) {
   return Array.from(segmenter.segment(text))
@@ -75,7 +73,9 @@ function computeTfIdf(docs) {
   const N = docs.length;
 
   tokens.forEach(doc => {
-    new Set(doc).forEach(w => df[w] = (df[w] || 0) + 1);
+    new Set(doc).forEach(w => {
+      df[w] = (df[w] || 0) + 1;
+    });
   });
 
   const scores = {};
@@ -95,7 +95,6 @@ function computeTfIdf(docs) {
     .sort((a, b) => b[1] - a[1])
     .map(([word, score]) => ({ word, score }));
 }
-
 
 function analyze() {
   const docs = document.getElementById("input").value
