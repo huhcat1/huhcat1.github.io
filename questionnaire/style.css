@@ -37,6 +37,19 @@ button:hover {
   background: #357abd;
 }
 
+.example-box,
+.ginga-box {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.example-box button,
+.ginga-box button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+
 .section {
   margin-top: 30px;
 }
