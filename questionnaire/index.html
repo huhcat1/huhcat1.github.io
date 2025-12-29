@@ -9,38 +9,28 @@
 
 <h1>アンケート TF-IDF 解析</h1>
 
-
-<h2> ---使い方--- </h2>  
+<h2>--- 使い方 ---</h2>  
 
 <p>
-このツールでは，アンケートの自由記述回答などの文章をもとに,どの単語が特徴的かを TF-IDF を用いて分析します
+このツールでは，アンケートの自由記述回答などの文章をもとに，
+どの単語が特徴的かを TF-IDF を用いて分析します。
 </p>
 <p>
-1行を1人分の回答としてテキストボックスに入力してください.
+1行を1人分の回答としてテキストボックスに入力してください。
 「解析する」ボタンを押すと，重要度の高い単語が
-ランキングと表形式で表示されます.
+ランキングと表形式で表示されます。
 </p>
 
-  
 <div class="container">
 
-  <textarea id="input">
-TF-IDFは「Term Frequency-Inverse Document Frequency」の略で，文書集合の中で特定の単語がどれだけ重要かを数値化する手法です．
-1970年代から使われている古典的な手法でありながら，
-現在でも多くの場面で活用されています．    
-  </textarea>
+  <textarea id="input" placeholder="ここに文章を入力してください（1行＝1回答）"></textarea>
 
+  <!-- 例文ボタン -->
+  <div class="example-buttons">
+    <button id="exampleYumeBtn">例文（夢十夜）</button>
+    <button id="exampleSurveyBtn">例文（アンケートテンプレ）</button>
+  </div>
 
-<div class="ginga-box">
-  <button id="exampleGingaBtn">例文(銀河鉄道の夜)</button>
-</div>
-
-<div class="example-box">
-  <button id="exampleBtn">例文(アンケートテンプレ)</button>
-</div>
-
-
-  
   <button id="analyzeBtn">解析する</button>
   <div id="status">準備完了</div>
 
@@ -62,6 +52,7 @@ TF-IDFは「Term Frequency-Inverse Document Frequency」の略で，文書集合
       <tbody id="tableBody"></tbody>
     </table>
   </div>
+
 </div>
 
 <script src="main.js"></script>
