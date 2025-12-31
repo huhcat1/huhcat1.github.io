@@ -79,6 +79,20 @@ function computeTfIdf(docs) {
     });
   });
 
+  function computeWordFrequency(docs) {
+  const freq = {};
+
+  docs.forEach(doc => {
+    tokenize(doc).forEach(w => {
+      freq[w] = (freq[w] || 0) + 1;
+    });
+  });
+
+  return Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .map(([word, count]) => ({ word, count }));
+}
+
   const scores = {};
 
   tokens.forEach(doc => {
