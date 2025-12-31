@@ -4,6 +4,9 @@ const stopWords = new Set([
   "こと", "もの", "それ", "これ", "ため", "よう", "感じ"
 ]);
 
+// =====================
+// 例文
+// =====================
 const yumeText = `こんな夢を見た。
 　腕組をして枕元に坐すわっていると、仰向あおむきに寝た女が、静かな声でもう死にますと云う。女は長い髪を枕に敷いて、輪郭りんかくの柔やわらかな瓜実うりざね顔がおをその中に横たえている。真白な頬の底に温かい血の色がほどよく差して、唇くちびるの色は無論赤い。とうてい死にそうには見えない。しかし女は静かな声で、もう死にますと判然はっきり云った。自分も確たしかにこれは死ぬなと思った。そこで、そうかね、もう死ぬのかね、と上から覗のぞき込むようにして聞いて見た。死にますとも、と云いながら、女はぱっちりと眼を開あけた。大きな潤うるおいのある眼で、長い睫まつげに包まれた中は、ただ一面に真黒であった。その真黒な眸ひとみの奥に、自分の姿が鮮あざやかに浮かんでいる。
 　自分は透すき徹とおるほど深く見えるこの黒眼の色沢つやを眺めて、これでも死ぬのかと思った。それで、ねんごろに枕の傍そばへ口を付けて、死ぬんじゃなかろうね、大丈夫だろうね、とまた聞き返した。すると女は黒い眼を眠そうに※(「目＋爭」、第3水準1-88-85)みはったまま、やっぱり静かな声で、でも、死ぬんですもの、仕方がないわと云った。
@@ -23,7 +26,6 @@ const yumeText = `こんな夢を見た。
 　自分はこう云う風に一つ二つと勘定して行くうちに、赤い日をいくつ見たか分らない。勘定しても、勘定しても、しつくせないほど赤い日が頭の上を通り越して行った。それでも百年がまだ来ない。しまいには、苔こけの生はえた丸い石を眺めて、自分は女に欺だまされたのではなかろうかと思い出した。
 　すると石の下から斜はすに自分の方へ向いて青い茎くきが伸びて来た。見る間に長くなってちょうど自分の胸のあたりまで来て留まった。と思うと、すらりと揺ゆらぐ茎くきの頂いただきに、心持首を傾かたぶけていた細長い一輪の蕾つぼみが、ふっくらと弁はなびらを開いた。真白な百合ゆりが鼻の先で骨に徹こたえるほど匂った。そこへ遥はるかの上から、ぽたりと露つゆが落ちたので、花は自分の重みでふらふらと動いた。自分は首を前へ出して冷たい露の滴したたる、白い花弁はなびらに接吻せっぷんした。自分が百合から顔を離す拍子ひょうしに思わず、遠い空を見たら、暁あかつきの星がたった一つ瞬またたいていた。
 「百年はもう来ていたんだな」とこの時始めて気がついた。`;
-
 const surveyText = `さまざまな分野で未来を感じて、世界各国の文化交流でプラス効果。
 大阪では、万博効果に続き、２０３０年のIR開業によって経済がさらに活発になり、現在の旺盛なインバウンド需要と相乗効果を発揮できれば良い
 社員共通の話題となり、従来とは異なるリレーションシップ、結束につながった
@@ -37,26 +39,14 @@ const surveyText = `さまざまな分野で未来を感じて、世界各国の
 // =====================
 function setExampleText(text) {
   const textarea = document.getElementById("input");
-
   if (textarea.value.trim() !== "") {
     if (!confirm("現在の入力内容を例文で上書きしますか？")) return;
   }
-
   textarea.value = text;
 }
 
-// ボタンイベント
-document.getElementById("exampleYumeBtn")
-  .addEventListener("click", () => setExampleText(yumeText));
-
-document.getElementById("exampleSurveyBtn")
-  .addEventListener("click", () => setExampleText(surveyText));
-
-document.getElementById("analyzeBtn")
-  .addEventListener("click", analyze);
-
 // =====================
-// TF-IDF
+// トークナイズ
 // =====================
 function tokenize(text) {
   return Array.from(segmenter.segment(text))
@@ -68,20 +58,11 @@ function tokenize(text) {
     );
 }
 
-function computeTfIdf(docs) {
-  const tokens = docs.map(tokenize);
-  const df = {};
-  const N = docs.length;
-
-  tokens.forEach(doc => {
-    new Set(doc).forEach(w => {
-      df[w] = (df[w] || 0) + 1;
-    });
-  });
-
-  function computeWordFrequency(docs) {
+// =====================
+// 最頻出ワード
+// =====================
+function computeWordFrequency(docs) {
   const freq = {};
-
   docs.forEach(doc => {
     tokenize(doc).forEach(w => {
       freq[w] = (freq[w] || 0) + 1;
@@ -92,6 +73,20 @@ function computeTfIdf(docs) {
     .sort((a, b) => b[1] - a[1])
     .map(([word, count]) => ({ word, count }));
 }
+
+// =====================
+// TF-IDF
+// =====================
+function computeTfIdf(docs) {
+  const tokens = docs.map(tokenize);
+  const df = {};
+  const N = docs.length;
+
+  tokens.forEach(doc => {
+    new Set(doc).forEach(w => {
+      df[w] = (df[w] || 0) + 1;
+    });
+  });
 
   const scores = {};
 
@@ -111,6 +106,9 @@ function computeTfIdf(docs) {
     .map(([word, score]) => ({ word, score }));
 }
 
+// =====================
+// 解析実行
+// =====================
 function analyze() {
   const docs = document.getElementById("input").value
     .split("\n")
@@ -119,21 +117,19 @@ function analyze() {
 
   if (docs.length === 0) return;
 
-  // ===== 最頻出 =====
+  // 最頻出
   const freqResult = computeWordFrequency(docs);
   const freqRanking = document.getElementById("freqRanking");
   freqRanking.innerHTML = "";
 
   freqResult.slice(0, 10).forEach((r, i) => {
-    freqRanking.innerHTML +=
-      `<li>${i + 1}位：${r.word}（${r.count}回）</li>`;
+    freqRanking.innerHTML += `<li>${i + 1}位：${r.word}（${r.count}回）</li>`;
   });
 
   document.getElementById("freqSection").style.display = "block";
 
-  // ===== TF-IDF =====
+  // TF-IDF
   const tfidfResult = computeTfIdf(docs);
-
   const ranking = document.getElementById("ranking");
   const tbody = document.getElementById("tableBody");
 
@@ -141,8 +137,7 @@ function analyze() {
   tbody.innerHTML = "";
 
   tfidfResult.slice(0, 10).forEach((r, i) => {
-    ranking.innerHTML +=
-      `<li>${i + 1}位：${r.word} (${r.score.toFixed(3)})</li>`;
+    ranking.innerHTML += `<li>${i + 1}位：${r.word} (${r.score.toFixed(3)})</li>`;
   });
 
   tfidfResult.forEach((r, i) => {
@@ -158,7 +153,10 @@ function analyze() {
   document.getElementById("tableSection").style.display = "block";
 }
 
+// =====================
+// イベント登録（最後）
+// =====================
+document.getElementById("exampleYumeBtn").onclick = () => setExampleText(yumeText);
+document.getElementById("exampleSurveyBtn").onclick = () => setExampleText(surveyText);
+document.getElementById("analyzeBtn").onclick = analyze;
 
-  document.getElementById("rankingSection").style.display = "block";
-  document.getElementById("tableSection").style.display = "block";
-}
