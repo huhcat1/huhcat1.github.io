@@ -119,7 +119,20 @@ function analyze() {
 
   if (docs.length === 0) return;
 
-  const result = computeTfIdf(docs);
+  // ===== 最頻出 =====
+  const freqResult = computeWordFrequency(docs);
+  const freqRanking = document.getElementById("freqRanking");
+  freqRanking.innerHTML = "";
+
+  freqResult.slice(0, 10).forEach((r, i) => {
+    freqRanking.innerHTML +=
+      `<li>${i + 1}位：${r.word}（${r.count}回）</li>`;
+  });
+
+  document.getElementById("freqSection").style.display = "block";
+
+  // ===== TF-IDF =====
+  const tfidfResult = computeTfIdf(docs);
 
   const ranking = document.getElementById("ranking");
   const tbody = document.getElementById("tableBody");
@@ -127,11 +140,12 @@ function analyze() {
   ranking.innerHTML = "";
   tbody.innerHTML = "";
 
-  result.slice(0, 10).forEach((r, i) => {
-    ranking.innerHTML += `<li>${i + 1}位：${r.word} (${r.score.toFixed(3)})</li>`;
+  tfidfResult.slice(0, 10).forEach((r, i) => {
+    ranking.innerHTML +=
+      `<li>${i + 1}位：${r.word} (${r.score.toFixed(3)})</li>`;
   });
 
-  result.forEach((r, i) => {
+  tfidfResult.forEach((r, i) => {
     tbody.innerHTML += `
       <tr>
         <td>${i + 1}</td>
@@ -139,6 +153,11 @@ function analyze() {
         <td>${r.score.toFixed(4)}</td>
       </tr>`;
   });
+
+  document.getElementById("rankingSection").style.display = "block";
+  document.getElementById("tableSection").style.display = "block";
+}
+
 
   document.getElementById("rankingSection").style.display = "block";
   document.getElementById("tableSection").style.display = "block";
