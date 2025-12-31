@@ -21,6 +21,13 @@
 ランキングと表形式で表示されます．
 </p>
 
+<h3>参考：TF-IDFの計算式</h3>
+<p>
+TF-IDF=TF(Term Frequency) × IDF(Inverse Document Frequency)
+
+※TF(単語の出現回数)，IDF(単語の逆文書頻度)
+</p> 
+
 <div class="container">
 
   <textarea id="input" placeholder="TF-IDFは「Term Frequency-Inverse Document Frequency」の略で，
@@ -44,7 +51,7 @@
   <ul id="freqRanking"></ul>
 </div>
   <div class="section" id="rankingSection" style="display:none;">
-    <h2>📊 単語ランキング（上位10）</h2>
+    <h2>📊 TF-IDFランキング（上位10）</h2>
     <ul id="ranking"></ul>
   </div>
 
