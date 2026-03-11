@@ -4,9 +4,7 @@ const stopWords = new Set([
   "こと", "もの", "それ", "これ", "ため", "よう", "感じ"
 ]);
 
-// =====================
-// 例文
-// =====================
+
 const yumeText = `こんな夢を見た。
 　腕組をして枕元に坐すわっていると、仰向あおむきに寝た女が、静かな声でもう死にますと云う。女は長い髪を枕に敷いて、輪郭りんかくの柔やわらかな瓜実うりざね顔がおをその中に横たえている。真白な頬の底に温かい血の色がほどよく差して、唇くちびるの色は無論赤い。とうてい死にそうには見えない。しかし女は静かな声で、もう死にますと判然はっきり云った。自分も確たしかにこれは死ぬなと思った。そこで、そうかね、もう死ぬのかね、と上から覗のぞき込むようにして聞いて見た。死にますとも、と云いながら、女はぱっちりと眼を開あけた。大きな潤うるおいのある眼で、長い睫まつげに包まれた中は、ただ一面に真黒であった。その真黒な眸ひとみの奥に、自分の姿が鮮あざやかに浮かんでいる。
 　自分は透すき徹とおるほど深く見えるこの黒眼の色沢つやを眺めて、これでも死ぬのかと思った。それで、ねんごろに枕の傍そばへ口を付けて、死ぬんじゃなかろうね、大丈夫だろうね、とまた聞き返した。すると女は黒い眼を眠そうに※(「目＋爭」、第3水準1-88-85)みはったまま、やっぱり静かな声で、でも、死ぬんですもの、仕方がないわと云った。
@@ -34,9 +32,7 @@ const surveyText = `さまざまな分野で未来を感じて、世界各国の
 第2次産業にはほとんど効果がなく、日本の産業にとっての永続的な効果は初めから期待出来なかった 
 大阪にとっては経済効果があったと思うが、他の地域にとってはインバウンド客を吸い取られることもあったようで、効果が相殺されていたのではないか`;
 
-// =====================
 // 例文挿入
-// =====================
 function setExampleText(text) {
   const textarea = document.getElementById("input");
   if (textarea.value.trim() !== "") {
@@ -45,9 +41,7 @@ function setExampleText(text) {
   textarea.value = text;
 }
 
-// =====================
-// トークナイズ
-// =====================
+
 function tokenize(text) {
   return Array.from(segmenter.segment(text))
     .map(s => s.segment.trim())
@@ -58,9 +52,7 @@ function tokenize(text) {
     );
 }
 
-// =====================
 // 最頻出ワード
-// =====================
 function computeWordFrequency(docs) {
   const freq = {};
   docs.forEach(doc => {
@@ -74,9 +66,7 @@ function computeWordFrequency(docs) {
     .map(([word, count]) => ({ word, count }));
 }
 
-// =====================
 // TF-IDF
-// =====================
 function computeTfIdf(docs) {
   const tokens = docs.map(tokenize);
   const df = {};
@@ -106,9 +96,6 @@ function computeTfIdf(docs) {
     .map(([word, score]) => ({ word, score }));
 }
 
-// =====================
-// 解析実行
-// =====================
 function analyze() {
   const docs = document.getElementById("input").value
     .split("\n")
@@ -153,9 +140,6 @@ function analyze() {
   document.getElementById("tableSection").style.display = "block";
 }
 
-// =====================
-// イベント登録（最後）
-// =====================
 document.getElementById("exampleYumeBtn").onclick = () => setExampleText(yumeText);
 document.getElementById("exampleSurveyBtn").onclick = () => setExampleText(surveyText);
 document.getElementById("analyzeBtn").onclick = analyze;
